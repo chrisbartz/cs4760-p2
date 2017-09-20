@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <wait.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-#define SLEEP_INTERVAL 2
+#define SLEEP_INTERVAL 5
 
 //extern bool choosing[n]; /* Shared Boolean array */
 //extern int number[n]; /* Shared integer array to hold turn number */
@@ -28,7 +29,7 @@
 int main(int argc, char *argv[]) {
 int childId = atoi(argv[1]);
 
-if (childId <= 0) {
+if (childId < 0) {
 	fprintf(stderr, "Something wrong with child id: %d\n", childId);
 	exit(1);
 } else {
