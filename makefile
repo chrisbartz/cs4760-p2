@@ -1,10 +1,13 @@
-all: my_prog   
+all: master palin  
 
 %.o: %.c 
 	$(CC) -c -std=gnu99 $<
 
-my_prog: main.o  
-	gcc -o my_prog main.o  
+master: master.o  
+	gcc -o master master.o  
+	
+palin: palin.o  
+	gcc -o palin palin.o
 
 clean:
-	rm my_prog* *.o
+	rm master palin *.o 
