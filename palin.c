@@ -1,3 +1,8 @@
+//Christopher Bartz
+//cyb01b
+//CS4760 S02
+//Project 2
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,7 +10,7 @@
 #include <sys/wait.h>
 
 
-#define SLEEP_INTERVAL 5
+#define SLEEP_INTERVAL 2
 
 //extern bool choosing[n]; /* Shared Boolean array */
 //extern int number[n]; /* Shared integer array to hold turn number */
@@ -32,12 +37,12 @@ int main(int argc, char *argv[]) {
 int childId = atoi(argv[0]);
 
 if (childId < 0) {
-	fprintf(stderr, "Something wrong with child id: %d\n", childId);
+	fprintf(stderr, "palin: Something wrong with child id: %d\n", childId);
 	exit(1);
 } else {
-	fprintf(stdout, "Child id %d started normally\n", childId);
+	fprintf(stdout, "palin: Child %d started normally\n", (int) getpid());
 	sleep(SLEEP_INTERVAL);
-	fprintf(stdout, "Child id %d exiting normally\n", childId);
+	fprintf(stdout, "palin: Child %d exiting normally\n", (int) getpid());
 }
 exit(0);
 }
