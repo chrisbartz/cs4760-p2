@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 	int childProcessCount = 0;
 	pid_t childpid;
 	char *c_argv[2];
+	char* time[30];
 	strcpy(&c_argv[0], CHILD_PROCESS);
 
 	if (argc < 1) { /* check for valid number of command-line arguments */
@@ -36,14 +37,12 @@ int main(int argc, char *argv[]) {
 			break;
 		int status;
 		if (wait(&status) >= 0) {
-			char* time[20];
 			getTime(time);
 			if (DEBUG) printf("master %s: Child process exited with %d status\n\n", time, WEXITSTATUS(status));
 			childProcessCount--; //because a child process completed
 		}
 
 		if (childProcessCount >= MAX_CHILD_PROCESSES) {
-			char* time[20];
 			getTime(time);
 			if (DEBUG) printf("master %s: Maximum child processes (%d) reached.  Sleeping 1 second\n", time, childProcessCount);
 			sleep(1);
@@ -62,7 +61,6 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (childpid == 0) { // child will execute
-			char* time[20];
 			getTime(time);
 			if (DEBUG) printf("master %s: Child %d (fork #%d from parent) will attempt to execl palin\n", time, (int) getppid(), i);
 			execl("./palin", iStr, NULL);
