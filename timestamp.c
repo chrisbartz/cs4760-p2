@@ -12,7 +12,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 void getTime(char* buffer) {
 	  int millisec;
