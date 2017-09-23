@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/wait.h>
+
 
 #define SLEEP_INTERVAL 5
 
@@ -27,7 +29,7 @@
 
 
 int main(int argc, char *argv[]) {
-int childId = atoi(argv[1]);
+int childId = atoi(argv[0]);
 
 if (childId < 0) {
 	fprintf(stderr, "Something wrong with child id: %d\n", childId);

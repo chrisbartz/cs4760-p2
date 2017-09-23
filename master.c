@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -10,6 +11,7 @@
 #define NUM_PROCESSES 2
 
 pid_t r_wait(int *stat_loc);
+char* getTime();
 
 int main(int argc, char *argv[]) {
    pid_t childpid;
@@ -22,9 +24,9 @@ int main(int argc, char *argv[]) {
       return 1;
    }
    for (int i = 0; i < NUM_PROCESSES; i++) {
-		char str[1];
-		sprintf(str, "%d", i);
-		strcpy(&c_argv[1], str);
+		char iStr[1];
+		sprintf(iStr, "%d", i);
+		strcpy(&c_argv[1], iStr);
 		//if (DEBUG) printf("%s:%s\n", &c_argv[0],&c_argv[1]);
 		if (DEBUG) printf("parent forking: %d\n", i);
 		childpid = fork();
@@ -35,17 +37,16 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 		if (childpid == 0) { /* child code */
-			if (DEBUG) printf("ChildPid %d (fork %d) will attempt to execvp\n", (int) childpid, i);
-			char *c_argv[] = {"palin","2"};
-			execvp(c_argv[0], &c_argv[0]);
-			perror("Child failed to execvp the command");
+			if (DEBUG) printf("ChildPid %d (fork %d) will attempt to execl\n", (int) childpid, i);
+			execl("./palin", iStr, NULL);
+			perror("Child failed to execl() the command");
 			return 1;
 		}
 		if (DEBUG) printf("parent forked: %d = childPid: %d\n", i, (int) childpid);
-//		if (childpid != r_wait(NULL)) { /* parent code */
-//			perror("Parent failed to wait");
-//			return 1;
-//		}
+		if (childpid != r_wait(NULL)) { /* parent code */
+			perror("Parent failed to wait");
+			return 1;
+		}
 		int status;
 		if (wait(&status) >= 0) {
 			if (WIFEXITED(status)) {
@@ -74,4 +75,16 @@ pid_t r_wait(int *stat_loc) {
    pid_t retval;
    while (((retval = wait(stat_loc)) == -1) && (errno == EINTR)) ;
    return retval;
+}
+
+char* getTime() {
+	time_t timer;
+	char buffer[26];
+	struct tm* tm_info;
+
+	time(&timer);
+	tm_info = localtime(&timer);
+
+	strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	return buffer;
 }
