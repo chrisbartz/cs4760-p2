@@ -22,13 +22,13 @@ char* create_shared_memory(int isParent) {
 
 	if (isParent) {
 		if (DEBUG) printf("sharedMemory: Creating shared memory segment\n");
-		if ((shmid = shmget(SHMKEY, SHMSIZE, IPC_CREAT)) == -1) {
+		if ((shmid = shmget(SHMKEY, SHMSIZE, IPC_CREAT | 0660)) == -1) {
 			perror("sharedMemory: Creating shared memory segment failed - you might have to use sudo to execute!\n");
 			exit(1);
 		}
 	} else {
 		if (DEBUG) printf("sharedMemory: Opening shared memory segment\n");
-		if ((shmid = shmget(SHMKEY, SHMSIZE, 0)) == -1) {
+		if ((shmid = shmget(SHMKEY, SHMSIZE, 0660)) == -1) {
 			perror("sharedMemory: Opening shared memory segment failed - you might have to use sudo to execute!\n");
 			exit(1);
 		}
