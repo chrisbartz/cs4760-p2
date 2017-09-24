@@ -28,16 +28,14 @@ int main(int argc, char *argv[]) {
 
 	getTime(timeVal);
 	if (DEBUG) printf("master %s: create shared memory\n", timeVal);
-	char* sharedMemory = create_shared_memory();
+	char* sharedMemory = create_shared_memory(1);
 
 	char message[] = "Hello children!";
 
-	if (sprintf(sharedMemory, "%s", message)) {
-		printf("write successful\n");
+	if (write_shared_memory(sharedMemory, message)) {
+		getTime(timeVal);
+		if (DEBUG) printf("master %s: write successful\n", timeVal);
 	}
-
-//	printf("%d", (int) sizeof(sharedMemory));
-//	printf("%s", sharedMemory);
 
 	if (argc < 1) { /* check for valid number of command-line arguments */
 		fprintf(stderr, "Usage: %s command arg1 arg2 ...\n", argv[0]);

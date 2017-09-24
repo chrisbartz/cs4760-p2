@@ -12,7 +12,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-char* create_shared_memory();
+char* create_shared_memory(int isParent);
 
 char* detatch_shared_memory(char* shmpnt);
 

@@ -14,18 +14,29 @@
 
 #define DEBUG 1
 #define SHMKEY 12345
-#define SHMSIZE 1024
+#define SHMSIZE 512
 
 int shmid;
 
-char* create_shared_memory() {
+char* create_shared_memory(int isParent) {
 
-	if (DEBUG) printf("sharedMemory: Creating shared memory segment\n");
-	if ((shmid = shmget(SHMKEY,SHMSIZE,IPC_CREAT)) == -1){
-		perror("sharedMemory: Creating shared memory segment failed\n");
-		exit(1);
+	if (isParent) {
+		if (DEBUG) printf("sharedMemory: Creating shared memory segment\n");
+		if ((shmid = shmget(SHMKEY, SHMSIZE, IPC_CREAT)) == -1) {
+			perror("sharedMemory: Creating shared memory segment failed - you might have to use sudo to execute!\n");
+			exit(1);
+		}
+	} else {
+		if (DEBUG) printf("sharedMemory: Opening shared memory segment\n");
+		if ((shmid = shmget(SHMKEY, SHMSIZE, 0)) == -1) {
+			perror("sharedMemory: Opening shared memory segment failed - you might have to use sudo to execute!\n");
+			exit(1);
+		}
 	}
-	return shmat(shmid,NULL,0);
+
+	char* sharedMemory = shmat(shmid,NULL,0);
+	if (DEBUG)printf("sharedMemory: Shared memory attached at address %p\n", sharedMemory);
+	return sharedMemory;
 
 }
 
