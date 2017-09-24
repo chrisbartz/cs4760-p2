@@ -8,8 +8,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
-void* create_shared_memory(size_t size);
+void* create_shared_memory();
+
+char* detatch_shared_memory(char* shmpnt);
+
+int write_shared_memory(char* memory, char* newdata);
 
 #endif /* SHAREDMEMORY_H_ */

@@ -7,10 +7,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 #include <sys/wait.h>
+#include "timestamp.h"
 
-
-#define SLEEP_INTERVAL 2
+#define SLEEP_INTERVAL 3
 
 //extern bool choosing[n]; /* Shared Boolean array */
 //extern int number[n]; /* Shared integer array to hold turn number */
@@ -35,14 +36,19 @@
 
 int main(int argc, char *argv[]) {
 int childId = atoi(argv[0]);
+char timeVal[30];
+srand(time(NULL));
 
+getTime(timeVal);
 if (childId < 0) {
-	fprintf(stderr, "palin: Something wrong with child id: %d\n", childId);
+	fprintf(stderr, "palin  %s: Something wrong with child id: %d\n", timeVal, getpid());
 	exit(1);
 } else {
-	fprintf(stdout, "palin: Child %d started normally\n", (int) getpid());
-	sleep(SLEEP_INTERVAL);
-	fprintf(stdout, "palin: Child %d exiting normally\n", (int) getpid());
+	fprintf(stdout, "palin  %s: Child %d started normally\n", timeVal, (int) getpid());
+	int forAWhile = rand() % SLEEP_INTERVAL;
+	fprintf(stdout, "palin  %s: Child %d sleeping for %d seconds\n", timeVal, (int) getpid(), forAWhile);
+	sleep(forAWhile);
+	fprintf(stdout, "palin  %s: Child %d exiting normally\n", timeVal, (int) getpid());
 }
 exit(0);
 }

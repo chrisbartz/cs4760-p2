@@ -32,7 +32,7 @@ void getTime(char* buffer) {
 
 	  tm_info = localtime(&tv.tv_sec);
 
-	  strftime(buffer, 26, "%Y:%m:%d %H:%M:%S.", tm_info);
+	  strftime(buffer, 26, "%Y-%m-%d %H:%M:%S.", tm_info);
 	  strcat(buffer,mils);
 	if (DEBUG) printf("timestamp: %s\n", buffer);
 }

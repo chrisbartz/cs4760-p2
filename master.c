@@ -11,47 +11,58 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "sharedMemory.h"
 #include "timestamp.h"
 
 #define DEBUG 1
 #define CHILD_PROCESS "palin"
-#define NUM_CHILD_PROCESSES 3
-#define MAX_CHILD_PROCESSES 2
+#define NUM_CHILD_PROCESSES_TO_SPAWN 5
+#define MAX_CONCURRENT_CHILD_PROCESSES 2
 
 pid_t r_wait(int *stat_loc);
 
 int main(int argc, char *argv[]) {
 	int childProcessCount = 0;
 	pid_t childpid;
-	char *c_argv[2];
-	char* time[30];
-	strcpy(&c_argv[0], CHILD_PROCESS);
+	//char *c_argv[2];
+	char timeVal[30];
+
+	getTime(timeVal);
+	printf("master %s: create shared memory\n", timeVal);
+	char* sharedMemory = create_shared_memory();
+
+	char message[] = "Hello children!";
+//	if (write_shared_memory(sharedMemory,message)) {
+//		printf("write successful");
+//	}
 
 	if (argc < 1) { /* check for valid number of command-line arguments */
 		fprintf(stderr, "Usage: %s command arg1 arg2 ...\n", argv[0]);
 		return 1;
 	}
 	int i = 0;
+
 	while (1) {
-		if (i >= NUM_CHILD_PROCESSES)
+		getTime(timeVal);
+		if (DEBUG) printf("master %s: Child processes count: %d\n", timeVal, childProcessCount);
+		if (i >= NUM_CHILD_PROCESSES_TO_SPAWN)
 			break;
 		int status;
 		if (wait(&status) >= 0) {
-			getTime(time);
-			if (DEBUG) printf("master %s: Child process exited with %d status\n\n", time, WEXITSTATUS(status));
+			getTime(timeVal);
+			if (DEBUG) printf("master %s: Child process exited with %d status\n\n", timeVal, WEXITSTATUS(status));
 			childProcessCount--; //because a child process completed
 		}
 
-		if (childProcessCount >= MAX_CHILD_PROCESSES) {
-			getTime(time);
-			if (DEBUG) printf("master %s: Maximum child processes (%d) reached.  Sleeping 1 second\n", time, childProcessCount);
+		if (childProcessCount >= MAX_CONCURRENT_CHILD_PROCESSES) {
+			getTime(timeVal);
+			if (DEBUG) printf("master %s: Maximum child processes (%d) reached.  Sleeping 1 second\n", timeVal, childProcessCount);
 			sleep(1);
 			continue;
 		}
 
 		char iStr[1];
 		sprintf(iStr, "%d", i);
-		strcpy(&c_argv[1], iStr);
 
 		childpid = fork();
 
@@ -61,8 +72,8 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (childpid == 0) { // child will execute
-			getTime(time);
-			if (DEBUG) printf("master %s: Child %d (fork #%d from parent) will attempt to execl palin\n", time, (int) getppid(), i);
+			getTime(timeVal);
+			if (DEBUG) printf("master %s: Child %d (fork #%d from parent) will attempt to execl palin\n", timeVal, (int) getppid(), i);
 			execl("./palin", iStr, NULL);
 			perror("master: Child failed to execl() the command");
 			return 1;
@@ -71,14 +82,13 @@ int main(int argc, char *argv[]) {
 		if (childpid != 0) { //parent will execute
 			childProcessCount++; //because we forked above
 
-			char* time[20];
-			getTime(time);
-			if (DEBUG) printf("master %s: parent forked child %d = childPid: %d\n", time, i, (int) childpid);
+			getTime(timeVal);
+			if (DEBUG) printf("master %s: parent forked child %d = childPid: %d\n", timeVal, i, (int) childpid);
 		}
 
 		i++;
 
-	} //end for loop
+	} //end while loop
 
 //		if (childpid != r_wait(NULL)) { /* parent code */
 //			perror("Parent failed to wait");
@@ -104,7 +114,7 @@ int main(int argc, char *argv[]) {
 //
 //		}
 
-
+	detatch_shared_memory(sharedMemory);
 	printf("master: parent terminated normally\n");
 	return 0;
 }

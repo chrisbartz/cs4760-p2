@@ -8,18 +8,38 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
-void* create_shared_memory(size_t size) {
-  // Our memory buffer will be readable and writable:
-  int protection = PROT_READ | PROT_WRITE;
+#define DEBUG 1
+#define SHMKEY 12345
+#define SHMSIZE 1024
 
-  // The buffer will be shared (meaning other processes can access it), but
-  // anonymous (meaning third-party processes cannot obtain an address for it),
-  // so only this process and its children will be able to use it:
-  int visibility = MAP_ANONYMOUS | MAP_SHARED;
+int shmid;
 
-  // The remaining parameters to `mmap()` are not important for this use case,
-  // but the manpage for `mmap` explains their purpose.
-  return mmap(NULL, size, protection, visibility, 0, 0);
+char* create_shared_memory() {
+
+	if (DEBUG) printf("sharedMemory: Creating shared memory segment\n");
+	if ((shmid = shmget(SHMKEY,SHMSIZE,IPC_CREAT)) == -1){
+		perror("sharedMemory: Creating shared memory segment failed\n");
+		exit(1);
+	}
+	return shmat(shmid,NULL,0);
+
+}
+
+char* detatch_shared_memory(char* shmpnt) {
+
+	if (DEBUG) printf("sharedMemory: Detatching shared memory segment\n");
+	shmdt(&shmpnt);
+
+}
+
+int write_shared_memory(char* memory, char* newdata) {
+
+	if (DEBUG) printf("sharedMemory: Writing to shared memory segment\n");
+	strncpy(memory, newdata, SHMSIZE);
+	return 1;
+
 }
