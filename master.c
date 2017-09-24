@@ -16,25 +16,28 @@
 
 #define DEBUG 1
 #define CHILD_PROCESS "palin"
-#define NUM_CHILD_PROCESSES_TO_SPAWN 5
-#define MAX_CONCURRENT_CHILD_PROCESSES 2
+#define NUM_CHILD_PROCESSES_TO_SPAWN 8
+#define MAX_CONCURRENT_CHILD_PROCESSES 3
 
 pid_t r_wait(int *stat_loc);
 
 int main(int argc, char *argv[]) {
 	int childProcessCount = 0;
 	pid_t childpid;
-	//char *c_argv[2];
 	char timeVal[30];
 
 	getTime(timeVal);
-	printf("master %s: create shared memory\n", timeVal);
+	if (DEBUG) printf("master %s: create shared memory\n", timeVal);
 	char* sharedMemory = create_shared_memory();
 
 	char message[] = "Hello children!";
-//	if (write_shared_memory(sharedMemory,message)) {
-//		printf("write successful");
-//	}
+
+	if (sprintf(sharedMemory, "%s", message)) {
+		printf("write successful\n");
+	}
+
+//	printf("%d", (int) sizeof(sharedMemory));
+//	printf("%s", sharedMemory);
 
 	if (argc < 1) { /* check for valid number of command-line arguments */
 		fprintf(stderr, "Usage: %s command arg1 arg2 ...\n", argv[0]);
@@ -47,18 +50,18 @@ int main(int argc, char *argv[]) {
 		if (DEBUG) printf("master %s: Child processes count: %d\n", timeVal, childProcessCount);
 		if (i >= NUM_CHILD_PROCESSES_TO_SPAWN)
 			break;
-		int status;
-		if (wait(&status) >= 0) {
-			getTime(timeVal);
-			if (DEBUG) printf("master %s: Child process exited with %d status\n\n", timeVal, WEXITSTATUS(status));
-			childProcessCount--; //because a child process completed
-		}
 
 		if (childProcessCount >= MAX_CONCURRENT_CHILD_PROCESSES) {
 			getTime(timeVal);
-			if (DEBUG) printf("master %s: Maximum child processes (%d) reached.  Sleeping 1 second\n", timeVal, childProcessCount);
-			sleep(1);
-			continue;
+			if (DEBUG) printf("master %s: Maximum child processes (%d) reached.  Waiting for a child to terminate\n", timeVal, childProcessCount);
+			//sleep(1);
+//					continue;
+			int status;
+			if (wait(&status) >= 0) {
+				getTime(timeVal);
+				if (DEBUG) printf("master %s: Child process exited with %d status\n\n", timeVal, WEXITSTATUS(status));
+				childProcessCount--; //because a child process completed
+			}
 		}
 
 		char iStr[1];

@@ -36,10 +36,10 @@ char* detatch_shared_memory(char* shmpnt) {
 
 }
 
-int write_shared_memory(char* memory, char* newdata) {
+int write_shared_memory(char* sharedMemory, char* newdata) {
 
 	if (DEBUG) printf("sharedMemory: Writing to shared memory segment\n");
-	strncpy(memory, newdata, SHMSIZE);
+	strncpy(sharedMemory, newdata, SHMSIZE);
 	return 1;
 
 }

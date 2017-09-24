@@ -11,7 +11,7 @@
 #include <sys/wait.h>
 #include "timestamp.h"
 
-#define SLEEP_INTERVAL 3
+#define SLEEP_INTERVAL 2
 
 //extern bool choosing[n]; /* Shared Boolean array */
 //extern int number[n]; /* Shared integer array to hold turn number */
@@ -45,7 +45,7 @@ if (childId < 0) {
 	exit(1);
 } else {
 	fprintf(stdout, "palin  %s: Child %d started normally\n", timeVal, (int) getpid());
-	int forAWhile = rand() % SLEEP_INTERVAL;
+	int forAWhile = (rand() % SLEEP_INTERVAL) + 1;
 	fprintf(stdout, "palin  %s: Child %d sleeping for %d seconds\n", timeVal, (int) getpid(), forAWhile);
 	sleep(forAWhile);
 	fprintf(stdout, "palin  %s: Child %d exiting normally\n", timeVal, (int) getpid());
