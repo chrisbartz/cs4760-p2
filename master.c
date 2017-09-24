@@ -19,8 +19,6 @@
 #define NUM_CHILD_PROCESSES_TO_SPAWN 8
 #define MAX_CONCURRENT_CHILD_PROCESSES 3
 
-pid_t r_wait(int *stat_loc);
-
 int main(int argc, char *argv[]) {
 	int childProcessCount = 0;
 	pid_t childpid;
@@ -35,8 +33,8 @@ int main(int argc, char *argv[]) {
 	char* locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1];
 
 //	for (int k = 0; k < NUM_CHILD_PROCESSES_TO_SPAWN; k++){
-		strcpy(entering,"00000000");
-		strcpy(locked,"11111111");
+//		strcpy(entering,"00000000");
+//		strcpy(locked,"11111111");
 //	}
 	entering[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
 	locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
@@ -60,14 +58,23 @@ int main(int argc, char *argv[]) {
 	while (1) {
 		getTime(timeVal);
 		if (DEBUG) printf("master %s: Child processes count: %d\n", timeVal, childProcessCount);
-		if (i >= NUM_CHILD_PROCESSES_TO_SPAWN)
+		if (i >= NUM_CHILD_PROCESSES_TO_SPAWN) {
+			while (childProcessCount > 0) {
+				int status;
+				if (wait(&status) >= 0) {
+					getTime(timeVal);
+					printf("master %s: Child process exited with %d status\n", timeVal, WEXITSTATUS(status));
+					childProcessCount--; //because a child process completed
+				}
+				if (DEBUG) printf("master %s: Child processes count: %d\n", timeVal, childProcessCount);
+			}
 			break;
+		}
+
 
 		if (childProcessCount >= MAX_CONCURRENT_CHILD_PROCESSES) {
 			getTime(timeVal);
 			printf("master %s: Maximum child processes (%d) reached.  Currently on %d of %d.  Waiting for a child to terminate\n", timeVal, childProcessCount, i + 1, NUM_CHILD_PROCESSES_TO_SPAWN);
-			//sleep(1);
-//					continue;
 			int status;
 			if (wait(&status) >= 0) {
 				getTime(timeVal);
@@ -105,38 +112,9 @@ int main(int argc, char *argv[]) {
 
 	} //end while loop
 
-//		if (childpid != r_wait(NULL)) { /* parent code */
-//			perror("Parent failed to wait");
-//			return 1;
-//		}
-
-//		int status;
-//		if (wait(&status) >= 0) {
-//			if (WIFEXITED(status)) {
-//				/* Child process exited normally, through `return` or `exit` */
-//				printf("Child process exited with %d status\n",
-//						WEXITSTATUS(status));
-//			}
-//			if (WIFSIGNALED(status)) {
-//				if (WCOREDUMP(status)) {
-//					printf("Child process core dumped with %d signal\n",
-//							WTERMSIG(status));
-//				} else {
-//					printf("Child process signal terminated with %d signal\n",
-//							WTERMSIG(status));
-//				}
-//			}
-//
-//		}
-
 	detatch_shared_memory(sharedMemory);
+	destroy_shared_memory();
 	printf("master: parent terminated normally\n");
 	return 0;
 }
 
-pid_t r_wait(int *stat_loc) {
-	pid_t retval;
-	while (((retval = wait(stat_loc)) == -1) && (errno == EINTR))
-		;
-	return retval;
-}

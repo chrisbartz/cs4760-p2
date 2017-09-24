@@ -22,4 +22,6 @@ void write_control(char* sharedMemory, char* entering, char* locked);
 
 void read_control(char* sharedMemory, char* entering, char* locked);
 
+void destroy_shared_memory();
+
 #endif /* SHAREDMEMORY_H_ */

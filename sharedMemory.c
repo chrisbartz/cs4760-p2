@@ -81,3 +81,10 @@ void read_control(char* sharedMemory, char* entering, char* locked) {
 	if (DEBUG) printf("sharedMemory: locked: %s\n", locked);
 
 }
+
+void destroy_shared_memory() {
+
+	if (DEBUG) printf("sharedMemory: Destroying shared memory segment\n");
+	shmctl(shmid, IPC_RMID, NULL);
+
+}
