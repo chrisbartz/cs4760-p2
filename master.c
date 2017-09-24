@@ -30,8 +30,22 @@ int main(int argc, char *argv[]) {
 	if (DEBUG) printf("master %s: create shared memory\n", timeVal);
 	char* sharedMemory = create_shared_memory(1);
 
-	char message[] = "Hello children!";
 
+	char* entering[NUM_CHILD_PROCESSES_TO_SPAWN + 1];
+	char* locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1];
+
+//	for (int k = 0; k < NUM_CHILD_PROCESSES_TO_SPAWN; k++){
+		strcpy(entering,"00000000");
+		strcpy(locked,"11111111");
+//	}
+	entering[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
+	locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
+	//printf("%s\n",control[0]);
+
+//	write_control(sharedMemory, entering, locked);
+//	if (DEBUG) printf("master %s: write successful: %s\n", timeVal, sharedMemory);
+
+		char message[] = "Hello children!";
 	if (write_shared_memory(sharedMemory, message)) {
 		getTime(timeVal);
 		if (DEBUG) printf("master %s: write successful\n", timeVal);
@@ -51,13 +65,13 @@ int main(int argc, char *argv[]) {
 
 		if (childProcessCount >= MAX_CONCURRENT_CHILD_PROCESSES) {
 			getTime(timeVal);
-			if (DEBUG) printf("master %s: Maximum child processes (%d) reached.  Waiting for a child to terminate\n", timeVal, childProcessCount);
+			printf("master %s: Maximum child processes (%d) reached.  Currently on %d of %d.  Waiting for a child to terminate\n", timeVal, childProcessCount, i + 1, NUM_CHILD_PROCESSES_TO_SPAWN);
 			//sleep(1);
 //					continue;
 			int status;
 			if (wait(&status) >= 0) {
 				getTime(timeVal);
-				if (DEBUG) printf("master %s: Child process exited with %d status\n\n", timeVal, WEXITSTATUS(status));
+				printf("master %s: Child process exited with %d status\n", timeVal, WEXITSTATUS(status));
 				childProcessCount--; //because a child process completed
 			}
 		}

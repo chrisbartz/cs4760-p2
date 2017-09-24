@@ -49,8 +49,35 @@ char* detatch_shared_memory(char* shmpnt) {
 
 int write_shared_memory(char* sharedMemory, char* newdata) {
 
-	if (DEBUG) printf("sharedMemory: Writing to shared memory segment\n");
+	if (DEBUG) printf("sharedMemory: Writing to shared memory segment: %s\n", newdata);
 	strncpy(sharedMemory, newdata, SHMSIZE);
 	return 1;
+
+}
+
+void write_control(char* sharedMemory, char* entering, char* locked) {
+
+	char message[50];
+	strncat(message, entering, sizeof(message));
+	strncat(message, "|", sizeof(message));
+	strncat(message, locked, sizeof(message));
+	if (DEBUG) printf("sharedMemory: message: %s\n", message);
+	write_shared_memory(sharedMemory, message);
+
+}
+
+void read_control(char* sharedMemory, char* entering, char* locked) {
+	char *stringArray[2];
+	char *p = strtok(sharedMemory, "|");
+	int i = 0;
+	while (p != NULL) {
+		stringArray[i++] = p;
+		p = strtok(NULL, " ");
+	}
+
+	entering = stringArray[0];
+	locked = stringArray[1];
+	if (DEBUG) printf("sharedMemory: entering: %s\n", entering);
+	if (DEBUG) printf("sharedMemory: locked: %s\n", locked);
 
 }

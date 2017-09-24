@@ -18,4 +18,8 @@ char* detatch_shared_memory(char* shmpnt);
 
 int write_shared_memory(char* memory, char* newdata);
 
+void write_control(char* sharedMemory, char* entering, char* locked);
+
+void read_control(char* sharedMemory, char* entering, char* locked);
+
 #endif /* SHAREDMEMORY_H_ */
