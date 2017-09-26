@@ -50,22 +50,28 @@ if (childId < 0) {
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d started normally\n", timeVal, (int) getpid());
 
 	char* sharedMemory = create_shared_memory(0);
-	char entering;
-	char locked;
-//	read_control(sharedMemory, entering, locked);
-	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s\n", timeVal, (int) getpid(), sharedMemory);
 
-	char message[] = "Hello everybody from child ";
-	char id[8];
-	sprintf(id, "%d", (int) getpid());
-	strncat(message, id, sizeof(message));
-	write_shared_memory(sharedMemory, message);
+	char* entering;
+	char* locked;
+	read_control(sharedMemory, entering, locked);
+	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s:%s\n", timeVal, (int) getpid(), entering, locked);
+
+//	getTime(timeVal);
+//	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s\n", timeVal, (int) getpid(), sharedMemory);
+//
+//	char message[] = "Hello everybody from child ";
+//	char id[8];
+//	sprintf(id, "%d", (int) getpid());
+//	strncat(message, id, sizeof(message));
+//	write_shared_memory(sharedMemory, message);
 
 	int forAWhile = (rand() % SLEEP_INTERVAL) + 1;
+	getTime(timeVal);
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d sleeping for %d seconds\n", timeVal, (int) getpid(), forAWhile);
 	sleep(forAWhile);
 
 	detatch_shared_memory(sharedMemory);
+	getTime(timeVal);
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d exiting normally\n", timeVal, (int) getpid());
 }
 exit(0);

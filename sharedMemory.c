@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
@@ -23,13 +24,15 @@ char* create_shared_memory(int isParent) {
 	if (isParent) {
 		if (DEBUG) printf("sharedMemory: Creating shared memory segment\n");
 		if ((shmid = shmget(SHMKEY, SHMSIZE, IPC_CREAT | 0660)) == -1) {
-			perror("sharedMemory: Creating shared memory segment failed - you might have to use sudo to execute!\n");
+			fprintf(stderr, "sharedMemory: shmget error code: %d", errno);
+			perror("sharedMemory: Creating shared memory segment failed\n");
 			exit(1);
 		}
 	} else {
 		if (DEBUG) printf("sharedMemory: Opening shared memory segment\n");
 		if ((shmid = shmget(SHMKEY, SHMSIZE, 0660)) == -1) {
-			perror("sharedMemory: Opening shared memory segment failed - you might have to use sudo to execute!\n");
+			fprintf(stderr, "sharedMemory: shmget error code: %d", errno);
+			perror("sharedMemory: Opening shared memory segment failed\n");
 			exit(1);
 		}
 	}
@@ -61,7 +64,7 @@ void write_control(char* sharedMemory, char* entering, char* locked) {
 	strncat(message, entering, sizeof(message));
 	strncat(message, "|", sizeof(message));
 	strncat(message, locked, sizeof(message));
-	if (DEBUG) printf("sharedMemory: message: %s\n", message);
+	if (DEBUG) printf("sharedMemory: write message: %s\n", message);
 	write_shared_memory(sharedMemory, message);
 
 }
@@ -77,8 +80,8 @@ void read_control(char* sharedMemory, char* entering, char* locked) {
 
 	entering = stringArray[0];
 	locked = stringArray[1];
-	if (DEBUG) printf("sharedMemory: entering: %s\n", entering);
-	if (DEBUG) printf("sharedMemory: locked: %s\n", locked);
+	if (DEBUG) printf("sharedMemory: read entering:locked %s:%s\n", entering, locked);
+
 
 }
 
