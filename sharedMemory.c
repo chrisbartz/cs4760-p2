@@ -18,6 +18,7 @@
 #define SHMSIZE 512
 
 int shmid;
+char* sharedMessage;
 
 char* create_shared_memory(int isParent) {
 
@@ -66,6 +67,8 @@ void write_control(char* sharedMemory, char* entering, char* locked) {
 	strncat(message, locked, sizeof(message));
 	if (DEBUG) printf("sharedMemory: write message: %s\n", message);
 	write_shared_memory(sharedMemory, message);
+	entering = NULL;
+	locked = NULL;
 
 }
 
@@ -80,8 +83,8 @@ void read_control(char* sharedMemory, char* entering, char* locked) {
 
 	entering = stringArray[0];
 	locked = stringArray[1];
-	if (DEBUG) printf("sharedMemory: read entering:locked %s:%s\n", entering, locked);
 
+	if (DEBUG) printf("sharedMemory: read entering:locked %s:%s\n", entering, locked);
 
 }
 

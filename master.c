@@ -16,32 +16,57 @@
 
 #define DEBUG 1
 #define CHILD_PROCESS "palin"
-#define NUM_CHILD_PROCESSES_TO_SPAWN 8
+//#define NUM_CHILD_PROCESSES_TO_SPAWN 8
 #define MAX_CONCURRENT_CHILD_PROCESSES 3
+
+void trim_newline(char *string);
 
 int main(int argc, char *argv[]) {
 	int childProcessCount = 0;
 	int opt;
 	pid_t childpid;
 	char timeVal[30];
-	char filename[30];
+	char *filename;
 
-//	//gather option flags
-//	while ((opt = getopt(argc, argv, "n:k:m:hwc:")) != -1) {
-//		switch (opt) {
-//		case 'f':
-//			filename = optarg;
-//			if (DEBUG) printf("opt f detected: %sd\n", filename);
-//			break;
-//		case 'h':
-//			if (DEBUG) printf("opt h detected\n");
-//			return printHelp(argv, 0);
-//			break;
-//		default:
-//			break;
-//		}
+	//gather option flags
+	while ((opt = getopt(argc, argv, "f:h")) != -1) {
+		switch (opt) {
+		case 'f':
+			filename = optarg;
+			if (DEBUG) printf("opt f detected: %s\n", filename);
+			break;
+		case 'h':
+			if (DEBUG) printf("opt h detected\n");
+			fprintf(stderr,"Usage: ./master <arguments>\n");
+			break;
+		default:
+			break;
+		}
+	}
+
+	// open file and inspect contents
+	char palinValues[500][100];
+	char row[100];
+	int palinValuesLength = 0;
+
+	FILE *file;
+	file = fopen(filename,"r");
+
+	if (file == NULL) {
+		perror("Cannot open file");
+		exit(1);
+	}
+
+	while (fgets(row , sizeof(row), file)) {
+		trim_newline(row);
+		strncpy(palinValues[palinValuesLength++], row, sizeof(row));
+		if (DEBUG) puts(palinValues[palinValuesLength -1]);
+	}
+
+
+//	if (DEBUG) for (int l = 0; l < palinValuesLength; l++) {
+//		printf("%s", palinValues[l]);
 //	}
-
 
 	getTime(timeVal);
 	if (DEBUG) printf("\n\nmaster %s: create shared memory\n", timeVal);
@@ -55,12 +80,12 @@ int main(int argc, char *argv[]) {
 	//	}
 
 	// more complicated messaging
-	char* entering[NUM_CHILD_PROCESSES_TO_SPAWN + 1];
-	char* locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1];
+	char entering[palinValuesLength + 1];
+	char locked[palinValuesLength + 1];
 
-	for (int k = 0; k < NUM_CHILD_PROCESSES_TO_SPAWN; k++){
-		strncpy(entering,"00000000",NUM_CHILD_PROCESSES_TO_SPAWN + 1);
-		strncpy(locked,"11111111",NUM_CHILD_PROCESSES_TO_SPAWN + 1);
+	for (int k = 0; k < palinValuesLength; k++){
+		strncpy(entering,"00000000",palinValuesLength + 1);
+		strncpy(locked,"11111111",palinValuesLength + 1);
 	}
 //	entering[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
 //	locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
@@ -81,7 +106,7 @@ int main(int argc, char *argv[]) {
 	while (1) {
 		getTime(timeVal);
 		if (DEBUG) printf("master %s: Child processes count: %d\n", timeVal, childProcessCount);
-		if (i >= NUM_CHILD_PROCESSES_TO_SPAWN) {
+		if (i >= palinValuesLength) {
 			while (childProcessCount > 0) {
 
 				int status;
@@ -99,7 +124,7 @@ int main(int argc, char *argv[]) {
 
 		if (childProcessCount >= MAX_CONCURRENT_CHILD_PROCESSES) {
 			getTime(timeVal);
-			printf("master %s: Maximum child processes (%d) reached.  Currently on %d of %d.  Waiting for a child to terminate\n", timeVal, childProcessCount, i + 1, NUM_CHILD_PROCESSES_TO_SPAWN);
+			printf("master %s: Maximum child processes (%d) reached.  Currently on %d of %d.  Waiting for a child to terminate\n", timeVal, childProcessCount, i + 1, palinValuesLength);
 
 			int status;
 			if (wait(&status) >= 0) {
@@ -122,8 +147,8 @@ int main(int argc, char *argv[]) {
 
 		if (childpid == 0) { // child will execute
 			getTime(timeVal);
-			if (DEBUG) printf("master %s: Child %d (fork #%d from parent) will attempt to execl palin\n", timeVal, (int) getppid(), i);
-			execl("./palin", iStr, NULL);
+			if (DEBUG) printf("master %s: Child (fork #%d from parent) will attempt to execl palin\n", timeVal, i);
+			execl("./palin", iStr, palinValues[i], NULL);
 			perror("master: Child failed to execl() the command");
 			return 1;
 		}
@@ -143,5 +168,13 @@ int main(int argc, char *argv[]) {
 	destroy_shared_memory();
 	printf("master: parent terminated normally\n\n");
 	return 0;
+}
+
+void trim_newline(char *string) {
+	char *pos;
+	if ((pos=strchr(string, '\n')) != NULL)
+	    *pos = '\0';
+	if ((pos=strchr(string, '\r')) != NULL)
+		*pos = '\0';
 }
 

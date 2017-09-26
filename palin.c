@@ -15,6 +15,7 @@
 #define DEBUG 1
 #define SLEEP_INTERVAL 2
 
+int solve_palindrome(char palin[]);
 
 //extern bool choosing[n]; /* Shared Boolean array */
 //extern int number[n]; /* Shared integer array to hold turn number */
@@ -47,7 +48,19 @@ if (childId < 0) {
 	if (DEBUG) fprintf(stderr, "palin  %s: Something wrong with child id: %d\n", timeVal, getpid());
 	exit(1);
 } else {
-	if (DEBUG) fprintf(stdout, "palin  %s: Child %d started normally\n", timeVal, (int) getpid());
+	if (DEBUG) fprintf(stdout, "palin  %s: Child %d started normally after execl\n", timeVal, (int) getpid());
+
+	char palin[100];
+	strncpy(palin, argv[1], 100);
+	fprintf(stdout, "palin  %s: Child %d found a palindrome to solve: %s\n", timeVal, (int) getpid(), palin);
+
+	// solve paindrome
+	int isPalindrome = solve_palindrome(palin);
+
+	if (DEBUG) if (isPalindrome)
+		fprintf(stdout, "palin  %s: Child %d found %s is a palindrome\n", timeVal, (int) getpid(), palin);
+	else
+		fprintf(stdout, "palin  %s: Child %d found %s is NOT a palindrome\n", timeVal, (int) getpid(), palin);
 
 	char* sharedMemory = create_shared_memory(0);
 
@@ -70,9 +83,26 @@ if (childId < 0) {
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d sleeping for %d seconds\n", timeVal, (int) getpid(), forAWhile);
 	sleep(forAWhile);
 
+	// critical section
+
+	// end critical section
+
 	detatch_shared_memory(sharedMemory);
 	getTime(timeVal);
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d exiting normally\n", timeVal, (int) getpid());
 }
 exit(0);
 }
+
+int solve_palindrome(char palin[]) {
+	int lengthOfPalindrome = sizeof(&palin);
+
+	for (int i = 0; i < lengthOfPalindrome/2; i++) {
+		if (palin[i] != palin[lengthOfPalindrome - i - 1]) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
