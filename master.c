@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "sharedMemory.h"
@@ -59,6 +60,8 @@ int main(int argc, char *argv[]) {
 
 	while (fgets(row , sizeof(row), file)) {
 		trim_newline(row);
+//		char trimRow[100];
+//		trim_white_space(trimRow, sizeof(row), row);
 		strncpy(palinValues[palinValuesLength++], row, sizeof(row));
 		if (DEBUG) puts(palinValues[palinValuesLength -1]);
 	}
@@ -171,10 +174,6 @@ int main(int argc, char *argv[]) {
 }
 
 void trim_newline(char *string) {
-	char *pos;
-	if ((pos=strchr(string, '\n')) != NULL)
-	    *pos = '\0';
-	if ((pos=strchr(string, '\r')) != NULL)
-		*pos = '\0';
+	string[strcspn(string, "\r\n")] = 0;
 }
 

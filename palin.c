@@ -58,9 +58,9 @@ if (childId < 0) {
 	int isPalindrome = solve_palindrome(palin);
 
 	if (DEBUG) if (isPalindrome)
-		fprintf(stdout, "palin  %s: Child %d found %s is a palindrome\n", timeVal, (int) getpid(), palin);
+		fprintf(stdout, "palin  %s: Child %d found \"%s\" is a palindrome\n", timeVal, (int) getpid(), palin);
 	else
-		fprintf(stdout, "palin  %s: Child %d found %s is NOT a palindrome\n", timeVal, (int) getpid(), palin);
+		fprintf(stdout, "palin  %s: Child %d found \"%s\" is NOT a palindrome\n", timeVal, (int) getpid(), palin);
 
 	char* sharedMemory = create_shared_memory(0);
 
@@ -95,10 +95,16 @@ exit(0);
 }
 
 int solve_palindrome(char palin[]) {
-	int lengthOfPalindrome = sizeof(&palin);
+	char timeVal[30];
+	int lengthOfPalindrome = strlen(palin);
+	if (DEBUG) fprintf(stdout, "palin  %s: Child %d evaluating palindrome - length: %d\n", timeVal, (int) getpid(), lengthOfPalindrome);
 
 	for (int i = 0; i < lengthOfPalindrome/2; i++) {
-		if (palin[i] != palin[lengthOfPalindrome - i - 1]) {
+		getTime(timeVal);
+		char leading = palin[i];
+		char tailing = palin[lengthOfPalindrome - i - 1];
+		if (DEBUG) fprintf(stdout, "palin  %s: Child %d evaluating palindrome - i: %d l: %c t: %c\n", timeVal, (int) getpid(), i, leading, tailing);
+		if (leading != tailing) {
 			return 0;
 		}
 	}
