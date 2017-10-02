@@ -64,13 +64,13 @@ if (childId < 0) {
 
 	char* sharedMemory = create_shared_memory(0);
 
-	char* entering;
-	char* locked;
-	read_control(sharedMemory, entering, locked);
-	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s:%s\n", timeVal, (int) getpid(), entering, locked);
+//	char* entering;
+//	char* locked;
+//	read_control(sharedMemory, entering, locked);
+//	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s:%s\n", timeVal, (int) getpid(), entering, locked);
 
-//	getTime(timeVal);
-//	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s\n", timeVal, (int) getpid(), sharedMemory);
+	getTime(timeVal);
+	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s\n", timeVal, (int) getpid(), sharedMemory);
 //
 //	char message[] = "Hello everybody from child ";
 //	char id[8];

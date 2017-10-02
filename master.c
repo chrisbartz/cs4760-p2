@@ -67,37 +67,38 @@ int main(int argc, char *argv[]) {
 	}
 
 
-//	if (DEBUG) for (int l = 0; l < palinValuesLength; l++) {
-//		printf("%s", palinValues[l]);
-//	}
+
 
 	getTime(timeVal);
 	if (DEBUG) printf("\n\nmaster %s: create shared memory\n", timeVal);
 	char* sharedMemory = create_shared_memory(1);
 
+	if (DEBUG) for (int l = 0; l < palinValuesLength; l++) {
+		if (DEBUG) printf("%s\n", palinValues[l]);
 		// simple message example
-	//	char message[] = "Hello children!";
-	//	if (write_shared_memory(sharedMemory, message)) {
-	//		getTime(timeVal);
-	//		if (DEBUG) printf("master %s: write successful\n", timeVal);
-	//	}
+		if (write_shared_memory(&sharedMemory[l], palinValues[l])) {
+			getTime(timeVal);
+				if (DEBUG) printf("master %s: write successful\n", timeVal);
+		}
+	}
+
 
 	// more complicated messaging
-	char entering[palinValuesLength + 1];
-	char locked[palinValuesLength + 1];
+//	char entering[palinValuesLength + 1];
+//	char locked[palinValuesLength + 1];
+//
+//	for (int k = 0; k < palinValuesLength; k++){
+//		strncpy(entering,"00000000",palinValuesLength + 1);
+//		strncpy(locked,"11111111",palinValuesLength + 1);
+//	}
+////	entering[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
+////	locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
+//	printf("entering %s\n",entering);
+//	printf("locked %s\n",locked);
 
-	for (int k = 0; k < palinValuesLength; k++){
-		strncpy(entering,"00000000",palinValuesLength + 1);
-		strncpy(locked,"11111111",palinValuesLength + 1);
-	}
-//	entering[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
-//	locked[NUM_CHILD_PROCESSES_TO_SPAWN + 1] = (char) '\0';
-	printf("entering %s\n",entering);
-	printf("locked %s\n",locked);
-
-	write_control(sharedMemory, entering, locked);
-	getTime(timeVal);
-	if (DEBUG) printf("master %s: write successful: %s\n", timeVal, sharedMemory);
+////	write_control(sharedMemory, entering, locked);
+//	getTime(timeVal);
+//	if (DEBUG) printf("master %s: write successful: %s\n", timeVal, sharedMemory);
 
 
 	if (argc < 1) { /* check for valid number of command-line arguments */
