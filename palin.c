@@ -12,30 +12,13 @@
 #include "sharedMemory.h"
 #include "timestamp.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define SLEEP_INTERVAL 2
 
+int isPalindrome;
+
 int solve_palindrome(char palin[]);
-
-//extern bool choosing[n]; /* Shared Boolean array */
-//extern int number[n]; /* Shared integer array to hold turn number */
-//void process_i ( const int i ) /* ith Process */ {
-// do
-// choosing[i] = true;
-// number[i] = 1 + max(number[0], ..., number[n-1]);
-// choosing[i] = false;
-// for ( int j = 0; j < n; j++ ) {
-// while ( choosing[j] ); // Wait if j happens to be choosing
-// while ( (number[j] != 0)
-// && ( number[j] < number[i] || (number[j] == number[i] && j < i) );
-// }
-// critical_section();
-//
-// number[i] = 0;
-// remainder_section();
-// while ( 1 );
-//}
-
+void critical_section(char palin[]);
 
 
 int main(int argc, char *argv[]) {
@@ -56,10 +39,10 @@ if (childId < 0) {
 	fprintf(stdout, "palin  %s: Child %d found a palindrome to solve: %s\n", timeVal, (int) getpid(), palin);
 
 	// solve paindrome
-	int isPalindrome = solve_palindrome(palin);
+	isPalindrome = solve_palindrome(palin);
 
 	getTime(timeVal);
-	if (DEBUG) if (isPalindrome)
+	if (isPalindrome)
 		fprintf(stdout, "palin  %s: Child %d found \"%s\" is a palindrome\n", timeVal, (int) getpid(), palin);
 	else
 		fprintf(stdout, "palin  %s: Child %d found \"%s\" is NOT a palindrome\n", timeVal, (int) getpid(), palin);
@@ -86,17 +69,45 @@ if (childId < 0) {
 	sleep(forAWhile);
 
 	// critical section
-	FILE *file;
+	//this is where the multiple processor solution is supposed to be implemented
+	int flag[500];
+	int idle = 0;
+	int want_in = 1;
+	int in_cs = 3;
+	int i = childId;
+	int j, n, turn;
 
-	if (isPalindrome) {
-		file = fopen("palin.out","a");
-	} else {
-		file = fopen("nopalin.out","a");
-	}
-    //sleep(forAWhile);
-	fprintf(file,"%s\n",palin);
-	//sleep(forAWhile);
-	fclose(file);
+	//n = number_of_processes;
+
+//	do {
+//			do {
+//				flag[i] = want_in; // Raise my flag
+//				j = turn; // Set local variable
+//				// wait until its my turn
+//				while (j != i)
+//					j = (flag[j] != idle) ? turn : (j + 1) % n;
+//				// Declare intention to enter critical section
+//				flag[i] = in_cs;
+//				// Check that no one else is in critical section
+//				for (j = 0; j < n; j++)
+//					if ((j != i) && (flag[j] == in_cs))
+//						break;
+//			} while ((j < n) || (turn != i && flag[turn] != idle));
+//			// Assign turn to self and enter critical section
+//			turn = i;
+			critical_section(palin);
+//			// Exit section
+//			j = (turn + 1) % n;
+//			while (flag[j] == idle)
+//				j = (j + 1) % n;
+//			// Assign turn to next waiting process; change own flag to idle
+//			turn = j;
+//			flag[i] = idle;
+//			remainder_section();
+//		} while (1);
+
+
+
 	// end critical section
 
 
@@ -126,4 +137,21 @@ int solve_palindrome(char palin[]) {
 	return 1;
 }
 
-
+void critical_section(char palin[]) {
+	char timeVal[30];
+	getTime(timeVal);
+	fprintf(stdout, "palin  %s: Child %d entering CRITICAL SECTION\n", timeVal, (int) getpid());
+	if (DEBUG) fprintf(stdout, "palin  %s: Child %d opening file\n", timeVal, (int) getpid());
+	FILE *file;
+	if (isPalindrome) {
+		file = fopen("palin.out", "a");
+	} else {
+		file = fopen("nopalin.out", "a");
+	}
+	//sleep(forAWhile);
+	fprintf(file, "%s\n", palin);
+	//sleep(forAWhile);
+	fclose(file);
+	getTime(timeVal);
+	fprintf(stdout, "palin  %s: Child %d exiting CRITICAL SECTION\n", timeVal, (int) getpid());
+}

@@ -16,10 +16,10 @@
 #include "sharedMemory.h"
 #include "timestamp.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define CHILD_PROCESS "palin"
 //#define NUM_CHILD_PROCESSES_TO_SPAWN 8
-#define MAX_CONCURRENT_CHILD_PROCESSES 3
+#define MAX_CONCURRENT_CHILD_PROCESSES 19
 
 int signalIntercepted = 0;
 

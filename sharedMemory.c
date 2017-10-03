@@ -13,7 +13,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #define SHMKEY 12345
 #define SHMSIZE 512
 
