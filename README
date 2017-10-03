@@ -3,8 +3,6 @@
 //CS4760 S02
 //Project 2
 
-###### NEED TO UPDATE FOR PROJECT 2 BELOW ######
-
 syntax: ./master -f <testfilename>
 
 arguments:
