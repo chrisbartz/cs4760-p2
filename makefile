@@ -10,4 +10,4 @@ palin: palin.o sharedMemory.o timestamp.o
 	gcc -o palin palin.o sharedMemory.o timestamp.o  
 
 clean:
-	rm master palin *.o 
+	rm master palin *.o palin.out nopalin.out

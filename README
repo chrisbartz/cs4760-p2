@@ -23,7 +23,7 @@ master forks children: working
 master regulates child process count: working
 master "waits" for child processes to terminate before returning: working
 master detatches and destroys shared memory after children are terminated: working
-master handles ^C interrupt command: NOT YET WORKING
+master handles ^C interrupt command: working
 
 Children:
 master (children) exec palin: working
@@ -31,7 +31,7 @@ master (children) exec relative path: working
 palin (children) receives id from console command passed from parent: working
 palin connects to shared memory: working
 palin reads shared memory: kind of working - they can read the shared memory segment but the data gets overwritten on write
-palin outputs to file: NOT YET!!! working
+palin outputs to file: working
 palin solves palindrome: working
 palin randomly waits before entering critical section: working
 palin handles critical section: not working

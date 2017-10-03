@@ -10,6 +10,7 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "sharedMemory.h"
@@ -20,7 +21,10 @@
 //#define NUM_CHILD_PROCESSES_TO_SPAWN 8
 #define MAX_CONCURRENT_CHILD_PROCESSES 3
 
+int signalIntercepted = 0;
+
 void trim_newline(char *string);
+void signal_handler(int signalIntercepted);
 
 int main(int argc, char *argv[]) {
 	int childProcessCount = 0;
@@ -28,6 +32,7 @@ int main(int argc, char *argv[]) {
 	pid_t childpid;
 	char timeVal[30];
 	char *filename;
+	pid_t childpids[500];
 
 	//gather option flags
 	while ((opt = getopt(argc, argv, "f:h")) != -1) {
@@ -107,7 +112,25 @@ int main(int argc, char *argv[]) {
 	}
 	int i = 0;
 
+	//register signal handler
+	signal(SIGINT, signal_handler);
+
 	while (1) {
+
+		//what to do when signal encountered
+		if (signalIntercepted) {
+			printf("\nmaster: //////////// parent terminating children due to a signal! //////////// \n\n");
+			for (int p = 0; p < i; p++) {
+				printf("master: //////////// parent terminating child process %d //////////// \n", (int) childpids[p]);
+				kill(childpids[p], SIGTERM);
+			}
+
+			detatch_shared_memory(sharedMemory);
+			destroy_shared_memory();
+			printf("master: parent terminated due to a signal!\n\n");
+			exit(130);
+		}
+
 		getTime(timeVal);
 		if (DEBUG) printf("master %s: Child processes count: %d\n", timeVal, childProcessCount);
 		if (i >= palinValuesLength) {
@@ -158,6 +181,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (childpid != 0) { //parent will execute
+			childpids[i] = childpid;
 			childProcessCount++; //because we forked above
 
 			getTime(timeVal);
@@ -178,3 +202,7 @@ void trim_newline(char *string) {
 	string[strcspn(string, "\r\n")] = 0;
 }
 
+void signal_handler(int signal) {
+	if (DEBUG) printf("\nmaster: //////////// Encountered signal! //////////// \n\n");
+	signalIntercepted = 1;
+}

@@ -86,8 +86,19 @@ if (childId < 0) {
 	sleep(forAWhile);
 
 	// critical section
+	FILE *file;
 
+	if (isPalindrome) {
+		file = fopen("palin.out","a");
+	} else {
+		file = fopen("nopalin.out","a");
+	}
+    //sleep(forAWhile);
+	fprintf(file,"%s\n",palin);
+	//sleep(forAWhile);
+	fclose(file);
 	// end critical section
+
 
 	detatch_shared_memory(sharedMemory);
 	getTime(timeVal);
