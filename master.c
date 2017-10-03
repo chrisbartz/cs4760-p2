@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 		// simple message example
 		if (write_shared_memory(&sharedMemory[l], palinValues[l])) {
 			getTime(timeVal);
-				if (DEBUG) printf("master %s: write successful\n", timeVal);
+			if (DEBUG) printf("master %s: write successful\n", timeVal);
 		}
 	}
 

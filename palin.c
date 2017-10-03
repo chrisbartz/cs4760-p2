@@ -52,11 +52,13 @@ if (childId < 0) {
 
 	char palin[100];
 	strncpy(palin, argv[1], 100);
+	getTime(timeVal);
 	fprintf(stdout, "palin  %s: Child %d found a palindrome to solve: %s\n", timeVal, (int) getpid(), palin);
 
 	// solve paindrome
 	int isPalindrome = solve_palindrome(palin);
 
+	getTime(timeVal);
 	if (DEBUG) if (isPalindrome)
 		fprintf(stdout, "palin  %s: Child %d found \"%s\" is a palindrome\n", timeVal, (int) getpid(), palin);
 	else
@@ -97,12 +99,14 @@ exit(0);
 int solve_palindrome(char palin[]) {
 	char timeVal[30];
 	int lengthOfPalindrome = strlen(palin);
+	getTime(timeVal);
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d evaluating palindrome - length: %d\n", timeVal, (int) getpid(), lengthOfPalindrome);
 
 	for (int i = 0; i < lengthOfPalindrome/2; i++) {
 		getTime(timeVal);
 		char leading = palin[i];
 		char tailing = palin[lengthOfPalindrome - i - 1];
+		getTime(timeVal);
 		if (DEBUG) fprintf(stdout, "palin  %s: Child %d evaluating palindrome - i: %d l: %c t: %c\n", timeVal, (int) getpid(), i, leading, tailing);
 		if (leading != tailing) {
 			return 0;

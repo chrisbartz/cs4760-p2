@@ -5,33 +5,44 @@
 
 ###### NEED TO UPDATE FOR PROJECT 2 BELOW ######
 
-syntax: ./my_prog <arguments>
+syntax: ./master -f <testfilename>
 
 arguments:
--h prints help
--n # sets the number of processes to fork
--k # number of times to print the same information
--m # controls the delay in printing in seconds
--w sets wait for child process
--c # will read # chars input from each process and change the output (question 8)
+-f <testfilename> will read in a file with palindromes, one per line and evaluate
 
 Source with revision control is at https://github.com/chrisbartz/cs4760-p2
 
-The project was done sequentially - all changes from question 1 should carry over to question 2 etc...
-The book doesnt really say to start over with 3.1 for each question so that is how I did the exercises.
-I will extract each program from version control and name it main1.c for question1, main2.c for question 2, etc...
-Likewise executables my_prog1 is for question 1, my_prog2 is for question 2...
-my_prog and my_prog8 should be exactly the same since I didnt change the final source and kept my numbering scheme.
+The project has most requirements working or at least attempted:
 
-I will give some example commands that should work when everything is built:
+Parent:
+master accepts a file via console arguments: working
+master reads a file with palindromes: working
+master creates shared memory: working 
+master writes to shared memory: kind of working - can write but overwrites the previous writes
+master forks children: working
+master regulates child process count: working
+master "waits" for child processes to terminate before returning: working
+master detatches and destroys shared memory after children are terminated: working
+master handles ^C interrupt command: NOT YET WORKING
 
-1. 	./my_prog1 25
-	./my_prog1 2500
-2. 	./my_prog2 25
-3. 	./my_prog3 100000 &> output3
-4. 	./my_prog3 200 &> output4
-5. 	./my_prog5 -n 25 -k 2 -m 1
-6. 	./my_prog6 -n 25 -k 2 -m 0
-	./my_prog -n 25 -k 1 -m 0 -w
-7. 	./my_prog7 -n 25 -k 1 -m 0
-8.	./my_prog8 -n 25 -k 1 -m 0 -c 2
+Children:
+master (children) exec palin: working
+master (children) exec relative path: working
+palin (children) receives id from console command passed from parent: working
+palin connects to shared memory: working
+palin reads shared memory: kind of working - they can read the shared memory segment but the data gets overwritten on write
+palin outputs to file: NOT YET!!! working
+palin solves palindrome: working
+palin randomly waits before entering critical section: working
+palin handles critical section: not working
+palin detaches from shared memory when done: working
+
+Others:
+project is available in Github
+makefile implemented
+README implemented
+testfile has 55 inputs
+
+There is only one example command that works for this project
+
+./master -f testfile
