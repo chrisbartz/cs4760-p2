@@ -12,20 +12,21 @@
 #include "sharedMemory.h"
 #include "timestamp.h"
 
-#define DEBUG 0
-#define SLEEP_INTERVAL 2
+#define DEBUG 0 // setting to 1 greatly increases number of logging events
+#define SLEEP_INTERVAL 2 // max time to sleep
 
-int isPalindrome;
+int isPalindrome; // holds result
 
 int solve_palindrome(char palin[]);
 void critical_section(char palin[]);
 
 
 int main(int argc, char *argv[]) {
-int childId = atoi(argv[0]);
-char timeVal[30];
-srand(time(NULL));
+int childId = atoi(argv[0]); // saves the child id passed from the parent process
+char timeVal[30]; // formatted time values for logging
+srand(time(NULL)); // random generator for sleep
 
+// a quick check to make sure palin received a child id
 getTime(timeVal);
 if (childId < 0) {
 	if (DEBUG) fprintf(stderr, "palin  %s: Something wrong with child id: %d\n", timeVal, getpid());
@@ -33,7 +34,7 @@ if (childId < 0) {
 } else {
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d started normally after execl\n", timeVal, (int) getpid());
 
-	char palin[100];
+	char palin[100]; // stores the palindrome to be evaluated
 	strncpy(palin, argv[1], 100);
 	getTime(timeVal);
 	fprintf(stdout, "palin  %s: Child %d found a palindrome to solve: %s\n", timeVal, (int) getpid(), palin);
@@ -41,14 +42,17 @@ if (childId < 0) {
 	// solve paindrome
 	isPalindrome = solve_palindrome(palin);
 
+	// report results
 	getTime(timeVal);
 	if (isPalindrome)
 		fprintf(stdout, "palin  %s: Child %d found \"%s\" is a palindrome\n", timeVal, (int) getpid(), palin);
 	else
 		fprintf(stdout, "palin  %s: Child %d found \"%s\" is NOT a palindrome\n", timeVal, (int) getpid(), palin);
 
+	// attach to shared memory
 	char* sharedMemory = create_shared_memory(0);
 
+	// the more complicated shared messaging solution that ended up not working as expected
 //	char* entering;
 //	char* locked;
 //	read_control(sharedMemory, entering, locked);
@@ -56,20 +60,22 @@ if (childId < 0) {
 
 	getTime(timeVal);
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d read shared memory: %s\n", timeVal, (int) getpid(), sharedMemory);
-//
+
+	// testing for shared memory
 //	char message[] = "Hello everybody from child ";
 //	char id[8];
 //	sprintf(id, "%d", (int) getpid());
 //	strncat(message, id, sizeof(message));
 //	write_shared_memory(sharedMemory, message);
 
+	// determine the random amount of time to sleep
 	int forAWhile = (rand() % SLEEP_INTERVAL) + 1;
 	getTime(timeVal);
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d sleeping for %d seconds\n", timeVal, (int) getpid(), forAWhile);
 	sleep(forAWhile);
 
 	// critical section
-	//this is where the multiple processor solution is supposed to be implemented
+	// this is where the multiple processor solution is supposed to be implemented if shared memory was working
 	int flag[500];
 	int idle = 0;
 	int want_in = 1;
@@ -111,6 +117,7 @@ if (childId < 0) {
 	// end critical section
 
 
+	// clean up shared memory
 	detatch_shared_memory(sharedMemory);
 	getTime(timeVal);
 	if (DEBUG) fprintf(stdout, "palin  %s: Child %d exiting normally\n", timeVal, (int) getpid());
@@ -118,6 +125,8 @@ if (childId < 0) {
 exit(0);
 }
 
+// inspects first and last characters and moves 1 character towards the
+// middle if they match; if they mismatch then not a palindrome
 int solve_palindrome(char palin[]) {
 	char timeVal[30];
 	int lengthOfPalindrome = strlen(palin);
@@ -137,6 +146,8 @@ int solve_palindrome(char palin[]) {
 	return 1;
 }
 
+// this part should occur within the critical section if
+// implemented correctly since it accesses shared file resources
 void critical_section(char palin[]) {
 	char timeVal[30];
 	getTime(timeVal);
